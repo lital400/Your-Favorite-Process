@@ -5,4 +5,4 @@ Process: takes a CSV file (uploaded) with a list of orders (buyer information an
 
 Deals with older listings of the company, where data is not stored in a uniform manner, so there is a need to tackle individual cases. 
 
-PHP, HTML, CSS. Bootstrap
+PHP, HTML, Bootstrap
