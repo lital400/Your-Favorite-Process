@@ -135,6 +135,7 @@ function processUS($the_big_array)
 function processInternational($the_big_array) 
 {
 	$trevco_array = []; 
+	$date = "BOT" . date("n-j-y");  // formatted date
 	$flag = true;
 
 	if (count($the_big_array) > 0)
@@ -148,7 +149,7 @@ function processInternational($the_big_array)
 			{
 				if($flag) { 
 					// header
-					$trevco_array[] = array("Item", "Quantity");
+					$trevco_array[] = array("Date", "Order", "Item", "Quantity");
 					$flag = false;  // skip the first line of headers 
 				} 
 				
@@ -157,7 +158,7 @@ function processInternational($the_big_array)
 				
 				// enter neccessary details into new array 
 				// sku, qty
-				$trevco_array[] = array($trev_sku, $value['34']);  
+				$trevco_array[] = array($date, $value['3'], $trev_sku, $value['34']);  
 			}
 		}
 	}
