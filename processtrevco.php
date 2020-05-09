@@ -1,5 +1,6 @@
 
 <?php
+
 session_start(); // Connect to the existing session
 
 $target_dir = "uploads/";
@@ -52,6 +53,7 @@ date_default_timezone_set("America/New_York");    // get local time zone
 if(strcmp($_POST['submit'], "Upload file (*)") == 0)    // check if need to process US or international orders 
 {
 	$trevco_array = processUS($the_big_array);
+	$trevco_array = checkSeparateOrders($trevco_array);  // check for separate orders by the same buyer and compibe them
 	exportCSV($trevco_array, "*");
 }
 elseif(strcmp($_POST['submit'], "Upload file (**)") == 0)
@@ -90,7 +92,7 @@ function processUS($the_big_array)
 				
 				// enter neccessary details into new array 
 				// date, order, name, address1, address2, city, state, zip, country, shipMethod, sku, qty,	rate
-				$trevco_array[] = array("", date("m/d/Y"), "", $value['3']."-B", "", "", "", "", "", "", "", "", $value['25'], "", $value['36'], $value['44'], $value['21'], $value['53'], $value['28'], "United States", $shipMethod, $trev_sku, $value['34'], "900");  
+				$trevco_array[] = array("", date("m/d/Y"), "", $value['3']/*."-B"*/, "", "", "", "", "", "", "", "", $value['25'], "", $value['36'], $value['44'], $value['21'], $value['53'], $value['28'], "United States", $shipMethod, $trev_sku, $value['34'], "900");  
 			}
 		}
 	}
@@ -417,6 +419,46 @@ function shippingMethod($str)
 		$shipMethod = "85572";   // first class by default
 	return $shipMethod;
 }
+
+
+function checkSeparateOrders($array)
+{
+	foreach ($array as $current_key => $current_array) 
+	{
+		foreach ($array as $search_key => $search_array) 
+		{
+			if ($search_key != $current_key)  // don't compare the same element to itself
+			{
+				if ($search_array['12'] == $current_array['12'] && $search_array['14'] == $current_array['14']) // check if buyer name and address1 are the same
+				{
+					if ($current_array['3'] != $search_array['3'])  // if order numbers do NOT match
+					{
+						if(substr($array[$current_key][3],-2) != "BE")   // check if the last two chars
+						{
+							$array[$current_key][3] .= "-BE";       // add -BE to first order
+						}
+						if(substr($array[$search_key][3],-2) != "BE")   // check if the last two chars
+						{
+							$array[$search_key][3] = $array[$current_key][3];   // change the second order to match the first one
+						}
+					}
+				}
+			}
+		}
+	}
+	// add -B to all the rest of the orders  
+	foreach ($array as $current_key => $current_array)  
+	{
+		if(substr($current_array[3],-1) != "E")   // check if the last two chars
+		{
+			$array[$current_key][3] .= "-B";       // add -BE to first order
+		}
+	}
+	
+	return $array;
+}
+
+
 
 		
 ?>
